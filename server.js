@@ -24,6 +24,28 @@ const find = (menu, q) => /^\d+$/.test(q) ? menu.find(f => f.id === +q)
 app.use(express.static(__dirname));
 app.get('/api/menu', (req, res) => { res.set('Cache-Control', 'no-store'); res.json(read()); });
 
+// Buyurtmani qabul qilish
+app.use(express.json());
+app.post('/api/order', async (req, res) => {
+  try {
+    const { who, how, items, total } = req.body;
+    let txt = `🔔 Yangi buyurtma!\n\n👤 Mijoz: ${who}\n🍽 Qanday: ${how}\n\n`;
+    items.forEach(i => {
+      txt += `• ${i.name} × ${i.qty}` + (i.price ? ` — ${i.price * i.qty} so'm` : '') + `\n`;
+    });
+    if (total) txt += `\n💰 Jami: ${total} so'm`;
+    
+    // Barcha adminlarga yuborish
+    for (const adminId of ADMINS) {
+      await bot.telegram.sendMessage(adminId, txt).catch(e => console.error('Xabar yuborilmadi:', e));
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false });
+  }
+});
+
 // ---- Bot: faqat adminlar ----
 bot.command('id', ctx => ctx.reply('Sizning Telegram ID raqamingiz: ' + ctx.from.id));
 bot.use((ctx, next) => {
