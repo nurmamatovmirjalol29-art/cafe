@@ -119,19 +119,19 @@ input,select{width:100%;margin-top:4px;padding:12px;border:1px solid var(--line)
 <script>
 const CATS=[["all","Barchasi"],["mangal","Mangal va tandir"],["issiq","Osh va sho'rva"],["xamir","Somsa va lavash"],["ichimlik","Ichimliklar"]];
 const FALLBACK=[
-{id:1,name:"Shashlik",desc:"Mangalda pishirilgan",price:0,category:"mangal"},
-{id:2,name:"Tandir",desc:"Tandirda pishirilgan go'sht",price:0,category:"mangal"},
-{id:3,name:"Grel",desc:"Qizdirilgan, sershira",price:0,category:"mangal"},
-{id:4,name:"Osh",desc:"Qozonda damlangan palov",price:0,category:"issiq"},
-{id:5,name:"Sho'rva",desc:"Issiq, to'yimli sho'rva",price:0,category:"issiq"},
-{id:6,name:"Somsa",desc:"Tandirdan yangi uzilgan",price:0,category:"xamir"},
-{id:7,name:"Lavash",desc:"Yumshoq non ichida go'sht va sabzavot",price:0,category:"xamir"},
-{"id": 11, "name": "Kola", "desc": "Sovuq, 0.5L", "price": 8000, "category": "ichimlik", "available": true},
-{"id": 12, "name": "Fanta", "desc": "Sovuq, 0.5L", "price": 8000, "category": "ichimlik", "available": true},
-{"id": 13, "name": "Suv", "desc": "Sovuq, 0.5L", "price": 3000, "category": "ichimlik", "available": true},
-{"id": 14, "name": "Choy (qora)", "desc": "Choynak, 1L", "price": 10000, "category": "ichimlik", "available": true},
-{"id": 15, "name": "Choy (ko'k)", "desc": "Choynak, 1L", "price": 10000, "category": "ichimlik", "available": true}];
-const fmt=n=>n?Number(n).toLocaleString("uz-UZ").replace(/\u00a0/g," ")+" so'm":"";
+{id:1,name:"Shashlik",desc:"Mangalda pishirilgan",price:25000,category:"mangal"},
+{id:2,name:"Tandir",desc:"Tandirda pishirilgan go'sht",price:180000,category:"mangal"},
+{id:3,name:"Grel",desc:"Qizdirilgan, sersuv",price:35000,category:"mangal"},
+{id:4,name:"Osh",desc:"Qozonda damlangan palov",price:30000,category:"issiq"},
+{id:5,name:"Sho'rva",desc:"Issiq, to'yimli sho'rva",price:25000,category:"issiq"},
+{id:6,name:"Somsa",desc:"Tandirdan yangi uzilgan",price:8000,category:"xamir"},
+{id:7,name:"Lavash",desc:"Yumshoq non ichida go'sht va sabzavot",price:35000,category:"xamir"},
+{id:8,name:"Kola",desc:"Sovuq, 0.5L",price:8000,category:"ichimlik"},
+{id:9,name:"Fanta",desc:"Sovuq, 0.5L",price:8000,category:"ichimlik"},
+{id:10,name:"Suv",desc:"Sovuq, 0.5L",price:3000,category:"ichimlik"},
+{id:11,name:"Choy (qora)",desc:"Choynak, 1L",price:10000,category:"ichimlik"},
+{id:12,name:"Choy (ko'k)",desc:"Choynak, 1L",price:10000,category:"ichimlik"}];
+  const fmt=n=>n?Number(n).toLocaleString("uz-UZ").replace(/\u00a0/g," ")+" so'm":"";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let foods=[],cat="all",cart={},tables=[],selectedTableId=null;
 
