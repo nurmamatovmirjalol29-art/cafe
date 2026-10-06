@@ -17,14 +17,12 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 Alegreya,Georgia,serif;padding-bottom:110px;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
-.hero{background:var(--navy);color:#f4ecd8;text-align:center;padding:34px 20px 54px;position:relative;
- border-bottom:3px solid #dfb76c}
+.hero{background:var(--navy);color:#f4ecd8;text-align:center;padding:34px 20px 54px;position:relative;border-bottom:3px solid #dfb76c}
 .hero svg{display:block;margin:0 auto 10px}
 .hero h1{font:400 30px/1.15 Marcellus,Georgia,serif;letter-spacing:.14em;margin:0;color:#dfb76c}
 .hero p{margin:6px 0 0;color:#cfd6e0;font-size:16px}
 .arch{position:relative;background:var(--navy);height:34px;margin-top:-1px}
-.arch:after{content:"";position:absolute;left:0;right:0;top:0;height:34px;background:var(--bg);
- border-radius:50% 50% 0 0/100% 100% 0 0}
+.arch:after{content:"";position:absolute;left:0;right:0;top:0;height:34px;background:var(--bg);border-radius:50% 50% 0 0/100% 100% 0 0}
 nav{display:flex;gap:8px;overflow-x:auto;padding:4px 16px 14px;scrollbar-width:none;position:sticky;top:0;background:var(--bg);z-index:5}
 nav::-webkit-scrollbar{display:none}
 nav button{flex:0 0 auto;background:none;border:1px solid var(--line);border-radius:999px;padding:8px 18px;min-height:44px}
@@ -62,6 +60,10 @@ input,select{width:100%;margin-top:4px;padding:12px;border:1px solid var(--line)
 .calls{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}.calls a{color:#0b1c36;background:#dfb76c;text-decoration:none;font-weight:700;border-radius:999px;padding:11px 20px;min-height:44px}
 .off h3,.off p,.off .price{opacity:.45}.out{color:var(--mute);border:1px dashed var(--line);border-radius:999px;padding:8px 14px;font-size:15px}
 .tm{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;background:none;border:1px solid rgba(223,183,108,.5);color:#dfb76c;border-radius:999px;width:40px;height:40px}
+.table-btn{padding:10px 16px;border:1.5px solid var(--gold2);border-radius:12px;background:none;color:var(--ink);font-weight:600;min-height:44px;transition:all .2s}
+.table-btn.selected{background:var(--gold2);color:var(--btn-ink)}
+.table-btn:disabled{opacity:.4;cursor:not-allowed;border-style:dashed}
+.table-btn small{font-weight:400;opacity:.7}
 @media (prefers-reduced-motion:reduce){.bar{transition:none}}
 </style>
 </head>
@@ -91,7 +93,21 @@ input,select{width:100%;margin-top:4px;padding:12px;border:1px solid var(--line)
     <h2>Buyurtmangiz</h2>
     <div id="lines"></div>
     <div class="sum" id="sumrow"><span>Jami</span><span id="sum"></span></div>
-    <label>Qanday olasiz?<select id="how"><option>Joyida yeyman</option><option>Olib ketaman</option></select></label>
+
+    <label>Qanday olasiz?
+      <select id="how">
+        <option>Joyida yeyman</option>
+        <option>Olib ketaman</option>
+        <option>Joyida tanovvul qilish</option>
+        <option value="stol">Stol band qilish</option>
+      </select>
+    </label>
+
+    <div id="tableBox" style="display:none;margin-top:12px">
+      <label style="margin-top:0">Qaysi stolni band qilmoqchisiz?</label>
+      <div id="tablesList" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    </div>
+
     <label>Ismingiz yoki stol raqami<input id="who" placeholder="Masalan: Aziz yoki 3-stol"></label>
     <div class="acts">
       <button id="back">Menyuga qaytish</button>
@@ -103,7 +119,6 @@ input,select{width:100%;margin-top:4px;padding:12px;border:1px solid var(--line)
 
 <script>
 const CATS=[["all","Barchasi"],["mangal","Mangal va tandir"],["issiq","Osh va sho'rva"],["xamir","Somsa va lavash"]];
-/* Narxlarni shu yerda yozing: price:0 bo'lsa narx ko'rinmaydi */
 const FALLBACK=[
 {id:1,name:"Shashlik",desc:"Mangalda pishirilgan",price:0,category:"mangal"},
 {id:2,name:"Tandir",desc:"Tandirda pishirilgan go'sht",price:0,category:"mangal"},
@@ -114,7 +129,7 @@ const FALLBACK=[
 {id:7,name:"Lavash",desc:"Yumshoq non ichida go'sht va sabzavot",price:0,category:"xamir"}];
 const fmt=n=>n?Number(n).toLocaleString("uz-UZ").replace(/\u00a0/g," ")+" so'm":"";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let foods=[],cat="all",cart={};
+let foods=[],cat="all",cart={},tables=[],selectedTableId=null;
 
 async function load(first){
   try{const r=await fetch("/api/menu",{cache:"no-store"});if(!r.ok)throw 0;foods=await r.json();}
@@ -122,6 +137,12 @@ async function load(first){
   for(const id in cart){const f=foods.find(x=>x.id==id);if(!f||f.available===false)delete cart[id];}
   if(first)tabs();render();bar();
 }
+
+async function loadTables(){
+  try{const r=await fetch("/api/tables",{cache:"no-store"});if(!r.ok)throw 0;tables=await r.json();}
+  catch(e){tables=[];}
+}
+
 function tabs(){
   const t=document.getElementById("tabs");
   t.innerHTML=CATS.map(([k,l])=>`<button data-c="${k}" aria-pressed="${k===cat}">${l}</button>`).join("");
@@ -166,32 +187,104 @@ function lines(){
   document.getElementById("lines").innerHTML=Object.values(cart).map(i=>`<div class="row"><span>${esc(i.name)} × ${i.qty}</span><span>${fmt(i.price*i.qty)}</span></div>`).join("");
   document.getElementById("sum").textContent=fmt(totals().t);document.getElementById("sumrow").style.display=totals().t?"flex":"none";
 }
-document.getElementById("open").onclick=()=>{lines();document.getElementById("toast").textContent="";sheet.classList.add("open");};
+
+function renderTables(){
+  const list=document.getElementById("tablesList");
+  if(!tables.length){
+    list.innerHTML='<p style="color:var(--mute);font-size:14px">Stollar yuklanmoqda...</p>';
+    return;
+  }
+  list.innerHTML=tables.map(t=>{
+    const isAvail=t.available!==false;
+    const sel=selectedTableId===t.id?" selected":"";
+    return `<button type="button" class="table-btn${sel}" data-id="${t.id}" ${!isAvail?'disabled':''}>
+      ${esc(t.name)} <small>(${t.capacity} kishi)</small>
+    </button>`;
+  }).join("");
+  list.querySelectorAll(".table-btn:not(:disabled)").forEach(btn=>{
+    btn.onclick=()=>{
+      list.querySelectorAll(".table-btn").forEach(b=>b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedTableId=+btn.dataset.id;
+    };
+  });
+}
+
+document.getElementById("how").onchange=function(){
+  const box=document.getElementById("tableBox");
+  if(this.value==="stol"){
+    box.style.display="block";
+    if(!tables.length)loadTables().then(renderTables);
+    else renderTables();
+  }else{
+    box.style.display="none";
+    selectedTableId=null;
+  }
+};
+
+document.getElementById("open").onclick=async()=>{
+  lines();
+  document.getElementById("toast").textContent="";
+  sheet.classList.add("open");
+  if(!tables.length)await loadTables();
+};
 document.getElementById("back").onclick=()=>sheet.classList.remove("open");
 sheet.onclick=e=>{if(e.target===sheet)sheet.classList.remove("open");};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")sheet.classList.remove("open");});
+
 document.getElementById("send").onclick=async()=>{
   const who=document.getElementById("who").value.trim()||"Mijoz";
   const how=document.getElementById("how").value;
+  const toast=document.getElementById("toast");
+
+  if(!Object.keys(cart).length){
+    toast.textContent="Savat bo'sh. Iltimos, taom tanlang.";
+    return;
+  }
+
+  if(how==="stol"&&!selectedTableId){
+    toast.textContent="Iltimos, bo'sh stoldan birini tanlang!";
+    return;
+  }
+
   const items=Object.values(cart).map(i=>({name:i.name,qty:i.qty,price:i.price}));
   const total=totals().t;
-  const toast=document.getElementById("toast");
   toast.textContent="Yuborilmoqda...";
-  
+
   try{
+    let tableName="";
+    if(how==="stol"&&selectedTableId){
+      const tb=tables.find(t=>t.id===selectedTableId);
+      tableName=tb?tb.name:"";
+    }
+
     const r=await fetch("/api/order",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({who,how,items,total})
+      body:JSON.stringify({who,how,items,total,tableId:selectedTableId,tableName})
     });
     if(!r.ok)throw 0;
+
+    if(how==="stol"&&selectedTableId){
+      await fetch("/api/reserve",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({tableId:selectedTableId,who})
+      });
+      const tb=tables.find(t=>t.id===selectedTableId);
+      if(tb)tb.available=false;
+    }
+
     toast.textContent="✅ Buyurtmangiz qabul qilindi! Tez orada aloqaga chiqamiz.";
-    cart={};bar();render();
+    cart={};selectedTableId=null;bar();render();
+    document.getElementById("tableBox").style.display="none";
+    document.getElementById("how").value="Joyida yeyman";
     setTimeout(()=>sheet.classList.remove("open"),3500);
   }catch(e){
     toast.textContent="❌ Xatolik yuz berdi. Iltimos, qo'ng'iroq qiling: 91 526 95 62";
   }
 };
+
 document.getElementById("tm").onclick=()=>{
   const r=document.documentElement,d=getComputedStyle(r).getPropertyValue("--bg").trim()==="#071426";
   r.dataset.theme=d?"light":"dark";
