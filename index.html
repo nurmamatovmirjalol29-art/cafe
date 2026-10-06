@@ -170,18 +170,27 @@ document.getElementById("open").onclick=()=>{lines();document.getElementById("to
 document.getElementById("back").onclick=()=>sheet.classList.remove("open");
 sheet.onclick=e=>{if(e.target===sheet)sheet.classList.remove("open");};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")sheet.classList.remove("open");});
-document.getElementById("send").onclick=()=>{
+document.getElementById("send").onclick=async()=>{
   const who=document.getElementById("who").value.trim()||"Mijoz";
-  let txt="Sepki Cafe buyurtma ("+who+", "+document.getElementById("how").value+"):\n";
-  Object.values(cart).forEach(i=>txt+="• "+i.name+" × "+i.qty+(i.price?" — "+fmt(i.price*i.qty):"")+"\n");
-  if(totals().t)txt+="Jami: "+fmt(totals().t);
-  const done=()=>{
-    document.getElementById("toast").textContent="Rahmat! Tezroq olish uchun qo'ng'iroq qiling: 91 526 95 62";
+  const how=document.getElementById("how").value;
+  const items=Object.values(cart).map(i=>({name:i.name,qty:i.qty,price:i.price}));
+  const total=totals().t;
+  const toast=document.getElementById("toast");
+  toast.textContent="Yuborilmoqda...";
+  
+  try{
+    const r=await fetch("/api/order",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({who,how,items,total})
+    });
+    if(!r.ok)throw 0;
+    toast.textContent="✅ Buyurtmangiz qabul qilindi! Tez orada aloqaga chiqamiz.";
     cart={};bar();render();
     setTimeout(()=>sheet.classList.remove("open"),3500);
-  };
-  window.open("https://t.me/share/url?url=%20&text="+encodeURIComponent(txt),"_blank");
-  done();
+  }catch(e){
+    toast.textContent="❌ Xatolik yuz berdi. Iltimos, qo'ng'iroq qiling: 91 526 95 62";
+  }
 };
 document.getElementById("tm").onclick=()=>{
   const r=document.documentElement,d=getComputedStyle(r).getPropertyValue("--bg").trim()==="#071426";
