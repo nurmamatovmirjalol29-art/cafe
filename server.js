@@ -21,7 +21,7 @@ const find = (menu, q) => /^\d+$/.test(q) ? menu.find(f => f.id === +q)
   : menu.find(f => f.name.toLowerCase().includes(q.toLowerCase()));
 
 // ---- Sayt uchun API ----
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 app.get('/api/menu', (req, res) => { res.set('Cache-Control', 'no-store'); res.json(read()); });
 
 // ---- Bot: faqat adminlar ----
