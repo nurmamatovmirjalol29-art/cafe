@@ -1,14 +1,18 @@
 [
-  {"id": 1, "name": "Shashlik", "desc": "Mangalda pishirilgan", "price": 25000, "category": "mangal", "available": true},
+  {"id": 1, "name": "Shashlik", "desc": "Mangalda pishirilgan, sershira", "price": 25000, "category": "mangal", "available": true},
   {"id": 2, "name": "Tandir", "desc": "Tandirda pishirilgan go'sht", "price": 180000, "category": "mangal", "available": true},
-  {"id": 3, "name": "Grel", "desc": "Qizdirilgan, sousli", "price": 35000, "category": "mangal", "available": true},
+  {"id": 3, "name": "Grel", "desc": "Qizdirilgan, sersuv", "price": 35000, "category": "mangal", "available": true},
   {"id": 4, "name": "Osh", "desc": "Qozonda damlangan palov", "price": 30000, "category": "issiq", "available": true},
   {"id": 5, "name": "Sho'rva", "desc": "Issiq, to'yimli sho'rva", "price": 25000, "category": "issiq", "available": true},
   {"id": 6, "name": "Somsa", "desc": "Tandirdan yangi uzilgan", "price": 8000, "category": "xamir", "available": true},
   {"id": 7, "name": "Lavash", "desc": "Yumshoq non ichida go'sht va sabzavot", "price": 35000, "category": "xamir", "available": true},
-  {"id": 8, "name": "Kola", "desc": "Sovuq, 0.5L", "price": 8000, "category": "ichimlik", "available": true},
-  {"id": 9, "name": "Fanta", "desc": "Sovuq, 0.5L", "price": 8000, "category": "ichimlik", "available": true},
-  {"id": 10, "name": "Suv", "desc": "Sovuq, 0.5L", "price": 3000, "category": "ichimlik", "available": true},
-  {"id": 11, "name": "Choy (qora)", "desc": "Choynak, 1L", "price": 10000, "category": "ichimlik", "available": true},
-  {"id": 12, "name": "Choy (ko'k)", "desc": "Choynak, 1L", "price": 10000, "category": "ichimlik", "available": true}
+  {"id": 8, "name": "Achichuq", "desc": "Pomidor, piyoz, ko'kat", "price": 10000, "category": "salat", "available": true},
+  {"id": 9, "name": "Sezar", "desc": "Tovuq, salat bargi, parmezan", "price": 25000, "category": "salat", "available": true},
+  {"id": 10, "name": "Olivye", "desc": "Klassik rus salati", "price": 15000, "category": "salat", "available": true},
+  {"id": 11, "name": "Mimoza", "desc": "Baliq, kartoshka, tuxum", "price": 18000, "category": "salat", "available": true},
+  {"id": 12, "name": "Kola", "desc": "Sovuq gazli ichimlik", "category": "ichimlik", "available": true, "options": [{"label": "0.5L", "price": 8000}, {"label": "1L", "price": 14000}, {"label": "1.5L", "price": 18000}]},
+  {"id": 13, "name": "Fanta", "desc": "Sovuq gazli ichimlik", "category": "ichimlik", "available": true, "options": [{"label": "0.5L", "price": 8000}, {"label": "1L", "price": 14000}, {"label": "1.5L", "price": 18000}]},
+  {"id": 14, "name": "Suv", "desc": "Toza ichimlik suvi", "category": "ichimlik", "available": true, "options": [{"label": "0.5L", "price": 3000}, {"label": "1L", "price": 5000}, {"label": "1.5L", "price": 7000}]},
+  {"id": 15, "name": "Choy (qora)", "desc": "Issiq qora choy", "category": "ichimlik", "available": true, "options": [{"label": "Choynak 1L", "price": 10000}, {"label": "Piyola", "price": 3000}]},
+  {"id": 16, "name": "Choy (ko'k)", "desc": "Issiq ko'k choy", "category": "ichimlik", "available": true, "options": [{"label": "Choynak 1L", "price": 10000}, {"label": "Piyola", "price": 3000}]}
 ]
