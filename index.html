@@ -283,9 +283,18 @@ function tabs(){
 function ctl(id){
   const fd=foods.find(x=>x.id===id);
   if(fd&&fd.available===false)return `<span class="out">${T('soldOut')}</span>`;
-  const q=cart[id]?cart[id].qty:0;
-  return q?`<div class="qty"><button data-a="dec" data-id="${id}" aria-label="−">−</button><b>${q}</b><button data-a="inc" data-id="${id}" aria-label="+">+</button></div>`
-          :`<button class="add" data-a="inc" data-id="${id}" aria-label="+">+</button>`;
+  
+  // Agar options 1 ta bo'lsa — kalitni options bilan bog'laymiz
+  let key = id;
+  if(fd && fd.options && fd.options.length === 1){
+    key = id + "_" + fd.options[0].label;
+  }
+  
+  const q = cart[key] ? cart[key].qty : 0;
+  
+  return q
+    ? `<div class="qty"><button data-a="dec" data-id="${id}" aria-label="−">−</button><b>${q}</b><button data-a="inc" data-id="${id}" aria-label="+">+</button></div>`
+    : `<button class="add" data-a="inc" data-id="${id}" aria-label="+">+</button>`;
 }
 
 /* ===== RENDER ===== */
@@ -303,18 +312,38 @@ function render(){
   m.innerHTML=html;
 }
 
-/* ===== SAVAT ===== */
+/* ===== SAVAT (menu bosilganda) ===== */
 document.getElementById("menu").onclick=e=>{
   const b=e.target.closest("[data-a]");if(!b)return;
-  const id=+b.dataset.id,f=foods.find(x=>x.id===id);
+  const id=+b.dataset.id;
+  const f=foods.find(x=>x.id===id);
+  if(!f) return;
+  
   if(b.dataset.a==="inc"){
-    if(f.options){showOptions(f);return;}
-    cart[id]=cart[id]||{name:dishName(f),price:f.price,qty:0};
-    cart[id].qty++;
+    if(f.options && f.options.length > 1){
+      showOptions(f);
+      return;
+    }
+    if(f.options && f.options.length === 1){
+      const o = f.options[0];
+      const key = id + "_" + o.label;
+      if(!cart[key]) cart[key] = {name: dishName(f) + " (" + o.label + ")", price: o.price, qty: 0};
+      cart[key].qty++;
+    } else {
+      cart[id] = cart[id] || {name: dishName(f), price: f.price, qty: 0};
+      cart[id].qty++;
+    }
   } else if(b.dataset.a==="dec"){
-    if(cart[id]&&--cart[id].qty<=0)delete cart[id];
+    // Avval options kalitini tekshiramiz
+    let key = id;
+    if(f.options && f.options.length === 1){
+      key = id + "_" + f.options[0].label;
+    }
+    if(cart[key] && --cart[key].qty <= 0) delete cart[key];
   }
-  document.getElementById("c"+id).innerHTML=ctl(id);
+  
+  const ctlEl = document.getElementById("c" + id);
+  if(ctlEl) ctlEl.innerHTML = ctl(id);
   bar();
 };
 
