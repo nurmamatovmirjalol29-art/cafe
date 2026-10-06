@@ -24,6 +24,43 @@ const find = (menu, q) => /^\d+$/.test(q) ? menu.find(f => f.id === +q)
 app.use(express.static(__dirname));
 app.get('/api/menu', (req, res) => { res.set('Cache-Control', 'no-store'); res.json(read()); });
 
+// Stollar ro'yxatini o'qish
+const TABLES_FILE = path.join(process.env.DATA_DIR || __dirname, 'tables.json');
+const readTables = () => { try { return JSON.parse(fs.readFileSync(TABLES_FILE, 'utf8')); } catch { return []; } };
+const writeTables = d => { fs.writeFileSync(TABLES_FILE + '.tmp', JSON.stringify(d, null, 2)); fs.renameSync(TABLES_FILE + '.tmp', TABLES_FILE); };
+
+app.get('/api/tables', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json(readTables());
+});
+
+// Stol band qilish
+app.post('/api/reserve', express.json(), (req, res) => {
+  try {
+    const { tableId, who } = req.body;
+    const tables = readTables();
+    const table = tables.find(t => t.id === tableId);
+    if (!table) return res.status(404).json({ ok: false, error: 'Stol topilmadi' });
+    if (table.available === false) return res.status(400).json({ ok: false, error: 'Bu stol allaqachon band' });
+    
+    table.available = false;
+    table.reservedBy = who;
+    table.reservedAt = new Date().toISOString();
+    writeTables(tables);
+    
+    // Adminga xabar yuborish
+    const txt = `🪑 Stol band qilindi!\n\n📍 ${table.name} (${table.capacity} kishilik)\n👤 Mijoz: ${who}`;
+    for (const adminId of ADMINS) {
+      bot.telegram.sendMessage(adminId, txt).catch(e => console.error('Xabar yuborilmadi:', e));
+    }
+    
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false });
+  }
+});
+
 // Buyurtmani qabul qilish
 app.use(express.json());
 app.post('/api/order', async (req, res) => {
