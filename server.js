@@ -12,7 +12,18 @@ if (!BOT_TOKEN) { console.error('BOT_TOKEN topilmadi'); process.exit(1); }
 const bot = new Telegraf(BOT_TOKEN);
 const app = express();
 
-const read = () => { try { return JSON.parse(fs.readFileSync(FILE, 'utf8')); } catch { return []; } };
+const read = () => { 
+  try { 
+    const data = fs.readFileSync(FILE, 'utf8');
+    console.log('✅ menu.json o\'qildi. Fayl:', FILE, '| Uzunligi:', data.length);
+    return JSON.parse(data); 
+  } catch (e) { 
+    console.error('❌ menu.json o\'qishda xato:', e.message);
+    console.error('❌ Qidirilgan manzil:', FILE);
+    return []; 
+  } 
+};
+
 const write = d => { fs.writeFileSync(FILE + '.tmp', JSON.stringify(d, null, 2)); fs.renameSync(FILE + '.tmp', FILE); };
 const price = s => parseInt(String(s).replace(/\D/g, ''), 10);
 const som = n => n ? Number(n).toLocaleString('ru-RU') + " so'm" : "narxi yo'q";
