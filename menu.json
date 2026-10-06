@@ -1,0 +1,9 @@
+[
+  {"id": 1, "name": "Shashlik", "desc": "Mangalda pishirilgan", "price": 0, "category": "mangal", "available": true},
+  {"id": 2, "name": "Tandir", "desc": "Tandirda pishirilgan go'sht", "price": 0, "category": "mangal", "available": true},
+  {"id": 3, "name": "Grel", "desc": "Qizdirilgan, sershira", "price": 0, "category": "mangal", "available": true},
+  {"id": 4, "name": "Osh", "desc": "Qozonda damlangan palov", "price": 0, "category": "issiq", "available": true},
+  {"id": 5, "name": "Sho'rva", "desc": "Issiq, to'yimli sho'rva", "price": 0, "category": "issiq", "available": true},
+  {"id": 6, "name": "Somsa", "desc": "Tandirdan yangi uzilgan", "price": 0, "category": "xamir", "available": true},
+  {"id": 7, "name": "Lavash", "desc": "Yumshoq non ichida go'sht va sabzavot", "price": 0, "category": "xamir", "available": true}
+]
