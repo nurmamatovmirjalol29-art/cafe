@@ -5,7 +5,7 @@
   {"id": 4, "name": "Osh", "desc": "Qozonda damlangan palov", "price": 30000, "category": "issiq", "available": true},
   {"id": 5, "name": "Sho'rva", "desc": "Issiq, to'yimli sho'rva", "price": 25000, "category": "issiq", "available": true},
   {"id": 6, "name": "Somsa", "desc": "Tandirdan yangi uzilgan", "price": 8000, "category": "xamir", "available": true},
-  {"id": 7, "name": "Lavash", "desc": "Yumshoq non ichida go'sht va sabzavot", "price": 35000, "category": "xamir", "available": true}
+  {"id": 7, "name": "Lavash", "desc": "Yumshoq non ichida go'sht va sabzavot", "price": 35000, "category": "xamir", "available": true},
   {"id": 8, "name": "Kola", "desc": "Sovuq, 0.5L", "price": 8000, "category": "ichimlik", "available": true},
   {"id": 9, "name": "Fanta", "desc": "Sovuq, 0.5L", "price": 8000, "category": "ichimlik", "available": true},
   {"id": 10, "name": "Suv", "desc": "Sovuq, 0.5L", "price": 3000, "category": "ichimlik", "available": true},
