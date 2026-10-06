@@ -12,12 +12,10 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#071426;--panel:#0d2038;--ink:#f4ecd8;--mute:#9aa7b8;--gold:#dfb76c;--gold2:#dfb76c;--line:rgba(223,183,108,.3);--btn-ink:#071426}}
 :root[data-theme="dark"]{--bg:#071426;--panel:#0d2038;--ink:#f4ecd8;--mute:#9aa7b8;--gold:#dfb76c;--gold2:#dfb76c;--line:rgba(223,183,108,.3);--btn-ink:#071426}
 *{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-:root{padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 Alegreya,Georgia,serif;padding-bottom:110px;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
-.hero{background:var(--navy);color:#f4ecd8;text-align:center;padding:34px 20px 54px;position:relative;border-bottom:3px solid #dfb76c}
+.hero{background:var(--navy);color:#f4ecd8;text-align:center;padding:34px 20px 54px;position:relative;border-bottom:3px solid #dfb76c;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M30 0l5 25 25 5-25 5-5 25-5-25-25-5 25-5z' fill='none' stroke='%23dfb76c' stroke-width='0.3' opacity='0.15'/%3E%3C/svg%3E")}
 .hero svg{display:block;margin:0 auto 10px}
 .hero h1{font:400 30px/1.15 Marcellus,Georgia,serif;letter-spacing:.14em;margin:0;color:#dfb76c}
 .hero p{margin:6px 0 0;color:#cfd6e0;font-size:16px}
@@ -64,6 +62,12 @@ input,select{width:100%;margin-top:4px;padding:12px;border:1px solid var(--line)
 .table-btn.selected{background:var(--gold2);color:var(--btn-ink)}
 .table-btn:disabled{opacity:.4;cursor:not-allowed;border-style:dashed}
 .table-btn small{font-weight:400;opacity:.7}
+.option-overlay{position:fixed;inset:0;background:rgba(3,8,16,.7);display:none;align-items:center;justify-content:center;z-index:40;padding:20px}
+.option-overlay.open{display:flex}
+.option-card{background:var(--panel);border-radius:20px;padding:24px;max-width:400px;width:100%;border:2px solid var(--gold2)}
+.option-card h3{margin:0 0 16px;font:400 22px Marcellus,Georgia,serif;color:var(--gold);text-align:center}
+.option-btn{display:block;width:100%;padding:14px;margin-bottom:10px;border:1.5px solid var(--gold2);border-radius:12px;background:none;color:var(--ink);font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.option-btn:hover{background:var(--gold2);color:var(--btn-ink)}
 @media (prefers-reduced-motion:reduce){.bar{transition:none}}
 </style>
 </head>
@@ -116,37 +120,46 @@ input,select{width:100%;margin-top:4px;padding:12px;border:1px solid var(--line)
   </div>
 </div>
 
+<div class="option-overlay" id="optionOverlay">
+  <div class="option-card">
+    <h3 id="optionTitle"></h3>
+    <div id="optionList"></div>
+    <button class="acts main" style="width:100%;margin-top:12px;min-height:48px;border-radius:999px;border:0;background:var(--gold2);color:var(--btn-ink);font-weight:700" onclick="document.getElementById('optionOverlay').classList.remove('open')">Bekor qilish</button>
+  </div>
+</div>
+
 <script>
-const CATS=[["all","Barchasi"],["mangal","Mangal va tandir"],["issiq","Osh va sho'rva"],["xamir","Somsa va lavash"],["ichimlik","Ichimliklar"]];
+const CATS=[["all","Barchasi"],["mangal","Mangal va tandir"],["issiq","Osh va sho'rva"],["xamir","Somsa va lavash"],["salat","Salatlar"],["ichimlik","Ichimliklar"]];
 const FALLBACK=[
-{id:1,name:"Shashlik",desc:"Mangalda pishirilgan",price:25000,category:"mangal"},
+{id:1,name:"Shashlik",desc:"Mangalda pishirilgan, sershira",price:25000,category:"mangal"},
 {id:2,name:"Tandir",desc:"Tandirda pishirilgan go'sht",price:180000,category:"mangal"},
 {id:3,name:"Grel",desc:"Qizdirilgan, sersuv",price:35000,category:"mangal"},
 {id:4,name:"Osh",desc:"Qozonda damlangan palov",price:30000,category:"issiq"},
 {id:5,name:"Sho'rva",desc:"Issiq, to'yimli sho'rva",price:25000,category:"issiq"},
 {id:6,name:"Somsa",desc:"Tandirdan yangi uzilgan",price:8000,category:"xamir"},
 {id:7,name:"Lavash",desc:"Yumshoq non ichida go'sht va sabzavot",price:35000,category:"xamir"},
-{id:8,name:"Kola",desc:"Sovuq, 0.5L",price:8000,category:"ichimlik"},
-{id:9,name:"Fanta",desc:"Sovuq, 0.5L",price:8000,category:"ichimlik"},
-{id:10,name:"Suv",desc:"Sovuq, 0.5L",price:3000,category:"ichimlik"},
-{id:11,name:"Choy (qora)",desc:"Choynak, 1L",price:10000,category:"ichimlik"},
-{id:12,name:"Choy (ko'k)",desc:"Choynak, 1L",price:10000,category:"ichimlik"}];
-  const fmt=n=>n?Number(n).toLocaleString("uz-UZ").replace(/\u00a0/g," ")+" so'm":"";
+{id:8,name:"Achichuq",desc:"Pomidor, piyoz, ko'kat",price:10000,category:"salat"},
+{id:9,name:"Sezar",desc:"Tovuq, salat bargi, parmezan",price:25000,category:"salat"},
+{id:10,name:"Olivye",desc:"Klassik rus salati",price:15000,category:"salat"},
+{id:11,name:"Mimoza",desc:"Baliq, kartoshka, tuxum",price:18000,category:"salat"},
+{id:12,name:"Kola",desc:"Sovuq gazli ichimlik",category:"ichimlik",options:[{label:"0.5L",price:8000},{label:"1L",price:14000},{label:"1.5L",price:18000}]},
+{id:13,name:"Fanta",desc:"Sovuq gazli ichimlik",category:"ichimlik",options:[{label:"0.5L",price:8000},{label:"1L",price:14000},{label:"1.5L",price:18000}]},
+{id:14,name:"Suv",desc:"Toza ichimlik suvi",category:"ichimlik",options:[{label:"0.5L",price:3000},{label:"1L",price:5000},{label:"1.5L",price:7000}]},
+{id:15,name:"Choy (qora)",desc:"Issiq qora choy",category:"ichimlik",options:[{label:"Choynak 1L",price:10000},{label:"Piyola",price:3000}]},
+{id:16,name:"Choy (ko'k)",desc:"Issiq ko'k choy",category:"ichimlik",options:[{label:"Choynak 1L",price:10000},{label:"Piyola",price:3000}]}];
+const fmt=n=>n?Number(n).toLocaleString("uz-UZ").replace(/\u00a0/g," ")+" so'm":"";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let foods=[],cat="all",cart={},tables=[],selectedTableId=null;
 
 async function load(first){
   try{const r=await fetch("/api/menu",{cache:"no-store"});if(!r.ok)throw 0;foods=await r.json();}
   catch(e){if(first)foods=FALLBACK;else return;}
-  for(const id in cart){const f=foods.find(x=>x.id==id);if(!f||f.available===false)delete cart[id];}
   if(first)tabs();render();bar();
 }
-
 async function loadTables(){
   try{const r=await fetch("/api/tables",{cache:"no-store"});if(!r.ok)throw 0;tables=await r.json();}
   catch(e){tables=[];}
 }
-
 function tabs(){
   const t=document.getElementById("tabs");
   t.innerHTML=CATS.map(([k,l])=>`<button data-c="${k}" aria-pressed="${k===cat}">${l}</button>`).join("");
@@ -163,22 +176,47 @@ function render(){
   const m=document.getElementById("menu");
   const list=foods.filter(f=>cat==="all"||f.category===cat);
   if(!list.length){m.innerHTML='<p style="color:var(--mute);padding:24px 0">Bu toifada hozircha taom yo\'q.</p>';return;}
-  const names={mangal:"Mangal va tandir",issiq:"Osh va sho'rva",xamir:"Somsa va lavash",ichimlik:"Ichimlikllar"};
+  const names={mangal:"Mangal va tandir",issiq:"Osh va sho'rva",xamir:"Somsa va lavash",salat:"Salatlar",ichimlik:"Ichimliklar"};
   let html="",last="";
   list.forEach(f=>{
     if(f.category!==last){last=f.category;html+=`<h2>${names[f.category]||esc(f.category)}</h2>`;}
-    html+=`<div class="dish${f.available===false?" off":""}"><h3>${esc(f.name)}</h3><div class="ctl" id="c${f.id}">${ctl(f.id)}</div><p>${esc(f.desc)}</p><span class="price">${fmt(f.price)}</span></div>`;
+    const priceText=f.options?("dan "+fmt(Math.min(...f.options.map(o=>o.price)))):fmt(f.price);
+    html+=`<div class="dish${f.available===false?" off":""}"><h3>${esc(f.name)}</h3><div class="ctl" id="c${f.id}">${ctl(f.id)}</div><p>${esc(f.desc)}</p><span class="price">${priceText}</span></div>`;
   });
   m.innerHTML=html;
 }
 document.getElementById("menu").onclick=e=>{
   const b=e.target.closest("[data-a]");if(!b)return;
   const id=+b.dataset.id,f=foods.find(x=>x.id===id);
-  if(b.dataset.a==="inc"){cart[id]=cart[id]||{name:f.name,price:f.price,qty:0};cart[id].qty++;}
-  else if(cart[id]&&--cart[id].qty<=0)delete cart[id];
+  if(b.dataset.a==="inc"){
+    if(f.options){
+      showOptions(f);
+      return;
+    }
+    cart[id]=cart[id]||{name:f.name,price:f.price,qty:0};
+    cart[id].qty++;
+  } else if(b.dataset.a==="dec"){
+    if(cart[id]&&--cart[id].qty<=0)delete cart[id];
+  }
   document.getElementById("c"+id).innerHTML=ctl(id);
   bar();
 };
+function showOptions(f){
+  const overlay=document.getElementById("optionOverlay");
+  document.getElementById("optionTitle").textContent=f.name;
+  const list=document.getElementById("optionList");
+  list.innerHTML=f.options.map(o=>`<button class="option-btn" onclick="pickOption(${f.id}, '${esc(o.label)}', ${o.price})">${esc(o.label)} — ${fmt(o.price)}</button>`).join("");
+  overlay.classList.add("open");
+}
+function pickOption(id, label, price){
+  const f=foods.find(x=>x.id===id);
+  const key=id+"_"+label;
+  if(!cart[key]) cart[key]={name:f.name+" ("+label+")",price:price,qty:0};
+  cart[key].qty++;
+  document.getElementById("optionOverlay").classList.remove("open");
+  document.getElementById("c"+id).innerHTML=ctl(id);
+  bar();
+}
 function totals(){let t=0,c=0;for(const k in cart){t+=cart[k].price*cart[k].qty;c+=cart[k].qty;}return{t,c};}
 function bar(){
   const{t,c}=totals(),b=document.getElementById("bar");
@@ -189,22 +227,17 @@ function bar(){
 const sheet=document.getElementById("sheet");
 function lines(){
   document.getElementById("lines").innerHTML=Object.values(cart).map(i=>`<div class="row"><span>${esc(i.name)} × ${i.qty}</span><span>${fmt(i.price*i.qty)}</span></div>`).join("");
-  document.getElementById("sum").textContent=fmt(totals().t);document.getElementById("sumrow").style.display=totals().t?"flex":"none";
+  document.getElementById("sum").textContent=fmt(totals().t);
+  document.getElementById("sumrow").style.display=totals().t?"flex":"none";
 }
-
 function renderTables(){
   const list=document.getElementById("tablesList");
-  if(!tables.length){
-    list.innerHTML='<p style="color:var(--mute);font-size:14px">Stollar yuklanmoqda...</p>';
-    return;
-  }
+  if(!tables.length){list.innerHTML='<p style="color:var(--mute);font-size:14px">Stollar yuklanmoqda...</p>';return;}
   list.innerHTML=tables.map(t=>{
     const isAvail=t.available!==false;
     const sel=selectedTableId===t.id?" selected":"";
     const status=isAvail?"🟢 Bo'sh":"🔴 Band";
-    return `<button type="button" class="table-btn${sel}" data-id="${t.id}" ${!isAvail?'disabled':''}>
-      ${esc(t.name)} <small>(${t.capacity} kishi) — ${status}</small>
-    </button>`;
+    return `<button type="button" class="table-btn${sel}" data-id="${t.id}" ${!isAvail?'disabled':''}>${esc(t.name)} <small>(${t.capacity} kishi) — ${status}</small></button>`;
   }).join("");
   list.querySelectorAll(".table-btn:not(:disabled)").forEach(btn=>{
     btn.onclick=()=>{
@@ -214,82 +247,43 @@ function renderTables(){
     };
   });
 }
-
 document.getElementById("how").onchange=function(){
   const box=document.getElementById("tableBox");
-  if(this.value==="stol"){
-    box.style.display="block";
-    if(!tables.length)loadTables().then(renderTables);
-    else renderTables();
-  }else{
-    box.style.display="none";
-    selectedTableId=null;
-  }
+  if(this.value==="stol"){box.style.display="block";if(!tables.length)loadTables().then(renderTables);else renderTables();}
+  else{box.style.display="none";selectedTableId=null;}
 };
-
 document.getElementById("open").onclick=async()=>{
-  lines();
-  document.getElementById("toast").textContent="";
-  sheet.classList.add("open");
+  lines();document.getElementById("toast").textContent="";sheet.classList.add("open");
   if(!tables.length)await loadTables();
 };
 document.getElementById("back").onclick=()=>sheet.classList.remove("open");
 sheet.onclick=e=>{if(e.target===sheet)sheet.classList.remove("open");};
 document.addEventListener("keydown",e=>{if(e.key==="Escape")sheet.classList.remove("open");});
-
 document.getElementById("send").onclick=async()=>{
   const who=document.getElementById("who").value.trim()||"Mijoz";
   const how=document.getElementById("how").value;
   const toast=document.getElementById("toast");
-
-  if(!Object.keys(cart).length){
-    toast.textContent="Savat bo'sh. Iltimos, taom tanlang.";
-    return;
-  }
-
-  if(how==="stol"&&!selectedTableId){
-    toast.textContent="Iltimos, bo'sh stoldan birini tanlang!";
-    return;
-  }
-
+  if(!Object.keys(cart).length){toast.textContent="Savat bo'sh. Iltimos, taom tanlang.";return;}
+  if(how==="stol"&&!selectedTableId){toast.textContent="Iltimos, bo'sh stoldan birini tanlang!";return;}
   const items=Object.values(cart).map(i=>({name:i.name,qty:i.qty,price:i.price}));
   const total=totals().t;
   toast.textContent="Yuborilmoqda...";
-
   try{
     let tableName="";
-    if(how==="stol"&&selectedTableId){
-      const tb=tables.find(t=>t.id===selectedTableId);
-      tableName=tb?tb.name:"";
-    }
-
-    const r=await fetch("/api/order",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({who,how,items,total,tableId:selectedTableId,tableName})
-    });
+    if(how==="stol"&&selectedTableId){const tb=tables.find(t=>t.id===selectedTableId);tableName=tb?tb.name:"";}
+    const r=await fetch("/api/order",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({who,how,items,total,tableId:selectedTableId,tableName})});
     if(!r.ok)throw 0;
-
     if(how==="stol"&&selectedTableId){
-      await fetch("/api/reserve",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({tableId:selectedTableId,who})
-      });
-      const tb=tables.find(t=>t.id===selectedTableId);
-      if(tb)tb.available=false;
+      await fetch("/api/reserve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tableId:selectedTableId,who})});
+      const tb=tables.find(t=>t.id===selectedTableId);if(tb)tb.available=false;
     }
-
-    toast.textContent="✅ Buyurtmangiz qabul qilindi! Tez orada aloqaga chiqamiz.";
+    toast.textContent="✅ Buyurtmangiz qabul qilindi!";
     cart={};selectedTableId=null;bar();render();
     document.getElementById("tableBox").style.display="none";
     document.getElementById("how").value="Joyida yeyman";
     setTimeout(()=>sheet.classList.remove("open"),3500);
-  }catch(e){
-    toast.textContent="❌ Xatolik yuz berdi. Iltimos, qo'ng'iroq qiling: 91 526 95 62";
-  }
+  }catch(e){toast.textContent="❌ Xatolik. Qo'ng'iroq qiling: 91 526 95 62";}
 };
-
 document.getElementById("tm").onclick=()=>{
   const r=document.documentElement,d=getComputedStyle(r).getPropertyValue("--bg").trim()==="#071426";
   r.dataset.theme=d?"light":"dark";
