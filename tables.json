@@ -1,0 +1,9 @@
+[
+  { "id": 1, "name": "1-stol", "capacity": 2, "available": true },
+  { "id": 2, "name": "2-stol", "capacity": 4, "available": true },
+  { "id": 3, "name": "3-stol", "capacity": 4, "available": true },
+  { "id": 4, "name": "4-stol", "capacity": 6, "available": true },
+  { "id": 5, "name": "5-stol", "capacity": 8, "available": true },
+  { "id": 6, "name": "6-stol", "capacity": 2, "available": true },
+  { "id": 7, "name": "VIP xona", "capacity": 12, "available": true }
+]
